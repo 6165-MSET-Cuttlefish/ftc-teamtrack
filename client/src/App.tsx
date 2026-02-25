@@ -1,0 +1,173 @@
+import { lazy, Suspense, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { logEvent } from 'firebase/analytics';
+import { getFirebase } from '@/lib';
+import { Toaster as Sonner } from '@/components/ui/sonner';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { AuthProvider, ThemeProvider, SessionProvider, TeamProvider } from '@/contexts';
+import {
+  ErrorBoundary,
+  Header,
+  ProtectedRoute,
+  GuestPrompt,
+  HomeRedirect,
+  DeepSeaBubbles,
+  MobileWarning,
+} from '@/components';
+import { ROUTES } from '@/constants';
+
+const Active = lazy(() => import('./pages/session/Active'));
+const Analysis = lazy(() => import('./pages/session/Analysis'));
+const EditSession = lazy(() => import('./pages/session/EditSession'));
+const Login = lazy(() => import('./pages/auth/Login'));
+const Signup = lazy(() => import('./pages/auth/Signup'));
+const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword'));
+const Profile = lazy(() => import('./pages/account/Profile'));
+const Sessions = lazy(() => import('./pages/session/Sessions'));
+const Compare = lazy(() => import('./pages/session/Compare'));
+const Charts = lazy(() => import('./pages/session/Charts'));
+const SharedSession = lazy(() => import('./pages/session/SharedSession'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+const JoinTeam = lazy(() => import('./pages/team/JoinTeam'));
+
+const RouteTracker = () => {
+  const location = useLocation();
+  useEffect(() => {
+    getFirebase().then(firebase => {
+      if (firebase?.analytics) {
+        logEvent(firebase.analytics, 'page_view', {
+          page_path: location.pathname + location.search,
+          page_location: window.location.href,
+        });
+        console.log('[Analytics] page_view fired:', location.pathname);
+      } else {
+        console.warn('[Analytics] logEvent skipped — analytics instance is null');
+      }
+    });
+  }, [location]);
+  return null;
+};
+
+const LoadingFallback = () => (
+  <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+    <div className="relative">
+      <div className="animate-spin rounded-full h-10 w-10 border-2 border-team-blue/20 border-t-team-blue"></div>
+    </div>
+    <p className="text-sm text-muted-foreground animate-pulse">Loading...</p>
+  </div>
+);
+
+const App = () => (
+  <TooltipProvider>
+    <ThemeProvider>
+      <ErrorBoundary>
+        <AuthProvider>
+          <TeamProvider>
+            <SessionProvider>
+            <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+              <RouteTracker />
+              <div className="min-h-screen flex flex-col">
+                <DeepSeaBubbles />
+                <Header />
+                <main className="flex-1">
+                  <Suspense fallback={<LoadingFallback />}>
+                    <Routes>
+                      <Route path={ROUTES.LOGIN} element={<Login />} />
+                      <Route path={ROUTES.SIGNUP} element={<Signup />} />
+                      <Route
+                        path={ROUTES.FORGOT_PASSWORD}
+                        element={<ForgotPassword />}
+                      />
+                      <Route
+                        path={ROUTES.TEAM_INVITE}
+                        element={
+                          <ProtectedRoute>
+                            <JoinTeam />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path={ROUTES.SHARED_SESSION}
+                        element={<SharedSession />}
+                      />
+
+                      <Route
+                        path={ROUTES.HOME}
+                        element={<HomeRedirect />}
+                      />
+                      <Route
+                        path={ROUTES.ACTIVE}
+                        element={
+                          <ProtectedRoute>
+                            <Active />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path={ROUTES.ANALYSIS}
+                        element={
+                          <ProtectedRoute>
+                            <Analysis />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path={ROUTES.EDIT_SESSION}
+                        element={
+                          <ProtectedRoute>
+                            <EditSession />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path={ROUTES.PROFILE}
+                        element={
+                          <ProtectedRoute>
+                            <Profile />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path={ROUTES.SESSIONS}
+                        element={
+                          <ProtectedRoute>
+                            <Sessions />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path={ROUTES.COMPARE}
+                        element={
+                          <ProtectedRoute>
+                            <Compare />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path={ROUTES.CHARTS}
+                        element={
+                          <ProtectedRoute>
+                            <Charts />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </Suspense>
+                </main>
+              </div>
+              <GuestPrompt />
+              <MobileWarning />
+              <Sonner />
+            </BrowserRouter>
+          </SessionProvider>
+          </TeamProvider>
+        </AuthProvider>
+      </ErrorBoundary>
+    </ThemeProvider>
+  </TooltipProvider>
+);
+
+export default App;

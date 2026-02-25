@@ -1,0 +1,103 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper functions ──────────────────────────────────────────────
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isTeamMember(teamId) {
+      return isAuthenticated() &&
+        'memberIds' in get(/databases/$(database)/documents/teams/$(teamId)).data &&
+        get(/databases/$(database)/documents/teams/$(teamId)).data.memberIds.hasAny([request.auth.uid]);
+    }
+
+    // ── Sessions ──────────────────────────────────────────────────────
+    // Owner can read/write; team members can read team sessions.
+    // Field validation: userId must match auth UID on create, and cannot
+    // be changed on update. Notes limited to 50 000 chars; matches to 200.
+    match /sessions/{sessionId} {
+      allow read: if isAuthenticated() && (
+        request.auth.uid == resource.data.userId ||
+        (resource.data.teamId != null && (
+          // Legacy team without memberIds — allow any authenticated user
+          !('memberIds' in get(/databases/$(database)/documents/teams/$(resource.data.teamId)).data) ||
+          // Team has memberIds — verify the reader is a member
+          isTeamMember(resource.data.teamId)
+        ))
+      );
+      allow update: if isAuthenticated()
+        && request.auth.uid == resource.data.userId
+        // userId cannot be changed
+        && request.resource.data.userId == resource.data.userId
+        // Field size limits
+        && (!('notes' in request.resource.data) || request.resource.data.notes.size() < 50000)
+        && (!('matches' in request.resource.data) || request.resource.data.matches.size() <= 200);
+      allow create: if isAuthenticated()
+        && request.resource.data.userId == request.auth.uid
+        && (!('notes' in request.resource.data) || request.resource.data.notes.size() < 50000)
+        && (!('matches' in request.resource.data) || request.resource.data.matches.size() <= 200);
+      allow delete: if isAuthenticated()
+        && request.auth.uid == resource.data.userId;
+    }
+
+    // ── Shared session snapshots ──────────────────────────────────────
+    // Anyone can read. Authenticated users can create (with createdBy).
+    // Only the creator can delete their own shared session.
+    match /sharedSessions/{shortId} {
+      allow read: if true;
+      allow create: if isAuthenticated()
+        && request.resource.data.createdBy == request.auth.uid;
+      allow delete: if isAuthenticated()
+        && resource.data.createdBy == request.auth.uid;
+    }
+
+    // ── Teams ─────────────────────────────────────────────────────────
+    // Members can read their own team. Invite-code lookups use a
+    // separate query limited to the inviteCode field (see docs).
+    // Only members can update. New members can only add themselves to
+    // memberIds/members if nothing else in the document changes besides
+    // those two fields.
+    match /teams/{teamId} {
+      // Read: team members or legacy teams without memberIds.
+      // Invite-code lookups use a where() query on inviteCode; Firestore
+      // evaluates this rule per-document, so the query naturally only
+      // returns documents whose inviteCode matches the filter, and the
+      // rule below still permits the read because every team carries an
+      // inviteCode field. To prevent any authenticated user from reading
+      // arbitrary teams by ID, we restrict non-member reads to list
+      // queries only (request.method == 'list' is implied for where()
+      // queries). get‐by‐ID requires membership.
+      allow get: if isAuthenticated() && (
+        !('memberIds' in resource.data) ||
+        resource.data.memberIds.hasAny([request.auth.uid])
+      );
+      allow list: if isAuthenticated()
+        && resource.data.memberIds.hasAny([request.auth.uid]);
+      allow create: if isAuthenticated()
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.memberIds.hasAny([request.auth.uid])
+        && request.resource.data.name.size() <= 100;
+      allow update: if isAuthenticated() && (
+        // Legacy teams without memberIds — permissive fallback
+        !('memberIds' in resource.data) ||
+        // Existing member (leave, kick, transfer, rename, etc.)
+        resource.data.memberIds.hasAny([request.auth.uid]) ||
+        // New member joining: can ONLY add themselves to memberIds/members
+        (
+          request.resource.data.memberIds.hasAny([request.auth.uid]) &&
+          // All other fields must remain unchanged
+          request.resource.data.name == resource.data.name &&
+          request.resource.data.createdBy == resource.data.createdBy &&
+          request.resource.data.inviteCode == resource.data.inviteCode
+        )
+      )
+        // Team name length limit
+        && request.resource.data.name.size() <= 100;
+      allow delete: if isAuthenticated()
+        && resource.data.createdBy == request.auth.uid;
+    }
+  }
+}

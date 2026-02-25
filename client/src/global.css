@@ -1,0 +1,566 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Righteous:wght@400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'Roboto',
+    sans-serif;
+}
+
+@layer base {
+  /**
+   * Tailwind CSS theme
+   * tailwind.config.ts expects the following color variables to be expressed as HSL values.
+   * A different format will require also updating the theme in tailwind.config.ts.
+  */
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.5rem;
+
+    /* Design tokens (light mode defaults) */
+    --team-blue: 83 119 136; /* #537788 */
+    --team-white: 254 254 254; /* #FEFEFE (slightly off-white) */
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+
+    /* Design tokens for dark mode */
+    --team-blue: 176 229 254; /* #B0E5FE */
+    --team-white: 255 255 255; /* pure white for dark mode */
+  }
+
+  /* Honeycomb theme - builds on dark mode */
+  .honeycomb {
+    /* Gold accent color for honeycomb theme */
+    --team-blue: 218 165 32; /* #DAA520 - goldenrod */
+    --honeycomb-gold: #daa520;
+    --honeycomb-gold-light: #ffd700;
+    --honeycomb-gold-dark: #b8860b;
+    --honeycomb-bg: #0a0a0a;
+  }
+
+  /* Deep Sea theme - builds on dark mode */
+  .deepsea {
+    /* Cyan accent color for deep sea theme */
+    --team-blue: 0 188 212; /* #00BCD4 - cyan */
+    --deepsea-accent: #00BCD4;
+    --deepsea-accent-light: #4DD0E1;
+    --deepsea-accent-glow: #00838F;
+    --deepsea-bg: #0a1628;
+    --deepsea-bg-deep: #060f1d;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-[hsl(var(--border))];
+  }
+
+  body {
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: theme('fontFamily.inter');
+    margin: 0;
+    padding: 0;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    /* Mobile touch optimizations */
+    -webkit-touch-callout: none;
+  }
+
+  html {
+    height: 100%;
+    scroll-behavior: smooth;
+  }
+
+  #root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Scroll margin for anchors under sticky header */
+  [id] {
+    scroll-margin-top: 5rem;
+  }
+
+  /* Focus styles */
+  *:focus-visible {
+    outline: 2px solid rgb(var(--team-blue));
+    outline-offset: 2px;
+  }
+
+  /* Improved button transitions */
+  button {
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground));
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(var(--team-blue) / 0.8);
+  }
+
+  /* Selection styles */
+  ::selection {
+    background: rgb(var(--team-blue) / 0.2);
+    color: hsl(var(--foreground));
+  }
+}
+
+@layer utilities {
+  /* Mobile optimizations */
+  @media (max-width: 640px) {
+    /* Increase touch target size for mobile */
+    button,
+    a {
+      min-height: 44px;
+      min-width: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    input,
+    textarea,
+    select {
+      font-size: 16px;
+      min-height: 44px;
+    }
+
+    /* Prevent zoom on input focus */
+    input:focus,
+    textarea:focus,
+    select:focus {
+      font-size: 16px;
+    }
+  }
+
+  /* Reduce scrollbar on mobile */
+  @media (max-width: 768px) {
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+  }
+
+  /* Smooth page transitions */
+  .page-transition {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Card hover lift effect */
+  .card-lift {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-lift:hover {
+    transform: translateY(-4px);
+  }
+
+  /* Pulse animation for interactive elements */
+  @keyframes pulse-subtle {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.8;
+    }
+  }
+
+  .animate-pulse-subtle {
+    animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Slide in from right */
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.4s ease-out;
+  }
+
+  /* Slide up from bottom (for toasts, prompts) */
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Righteous font for timer display */
+  .font-righteous {
+    font-family: 'Righteous', sans-serif;
+    font-weight: 400;
+  }
+
+  /* Scale on hover */
+  .hover-scale {
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .hover-scale:hover {
+    transform: scale(1.05);
+  }
+
+  /* Smooth background transitions */
+  .bg-transition {
+    transition: background-color 0.3s ease-in-out;
+  }
+
+  /* Shadow transitions */
+  .shadow-transition {
+    transition: box-shadow 0.3s ease-in-out;
+  }
+
+  /* Border glow effect */
+  .border-glow {
+    transition: all 0.3s ease-in-out;
+  }
+
+  .border-glow:hover {
+    box-shadow: 0 0 20px rgb(var(--team-blue) / 0.3);
+  }
+}
+
+/* Honeycomb theme background */
+.honeycomb body {
+  background: #0a0a0a;
+}
+
+/* Honeycomb hexagon pattern using proper CSS hexagons */
+.honeycomb #root {
+  position: relative;
+}
+
+.honeycomb #root::before {
+  content: '';
+  position: fixed;
+  top: -50px;
+  left: -50px;
+  right: -50px;
+  bottom: -50px;
+  pointer-events: none;
+  z-index: -1;
+  background-color: #0a0a0a;
+
+  /* SVG honeycomb pattern - proper interlocking hexagons */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23daa520' fill-opacity='0.15'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  background-size: 60px 105px;
+}
+
+/* Add a subtle glow layer */
+.honeycomb #root::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(218, 165, 32, 0.08) 0%,
+    transparent 70%
+  );
+}
+
+/* Make page backgrounds solid in honeycomb mode */
+.honeycomb .bg-team-dark {
+  background-color: #0a0a0a !important;
+}
+
+.honeycomb .bg-\[\#FEFEFE\] {
+  background-color: #0a0a0a !important;
+}
+
+.honeycomb .bg-white {
+  background-color: #0f0f0f !important;
+}
+
+.honeycomb .bg-gray-50 {
+  background-color: #111111 !important;
+}
+
+/* Card backgrounds in honeycomb mode */
+.honeycomb .bg-team-dark-20 {
+  background-color: #141414 !important;
+}
+
+/* Honeycomb theme accent colors */
+.honeycomb .text-team-blue {
+  color: #daa520 !important;
+}
+
+.honeycomb .bg-team-blue {
+  background-color: #daa520 !important;
+}
+
+.honeycomb .border-team-blue {
+  border-color: #daa520 !important;
+}
+
+.honeycomb .border-team-blue-40 {
+  border-color: rgba(218, 165, 32, 0.4) !important;
+}
+
+/* Gold glow effect for honeycomb theme */
+.honeycomb .border-glow:hover {
+  box-shadow: 0 0 20px rgba(218, 165, 32, 0.4);
+}
+
+/* ==================== DEEP SEA THEME ==================== */
+/* Midnight blue background with animated rising bubbles */
+
+.deepsea body {
+  background: #0a1628;
+}
+
+/* Deep sea gradient background */
+.deepsea #root {
+  position: relative;
+}
+
+.deepsea #root::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: -1;
+  background: linear-gradient(
+    180deg,
+    #0d1b2a 0%,
+    #0a1628 30%,
+    #071120 60%,
+    #040c18 100%
+  );
+}
+
+/* Subtle ambient water light caustics overlay */
+.deepsea #root::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 90% 40% at 30% 20%, rgba(0, 188, 212, 0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 50% at 70% 80%, rgba(0, 131, 143, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 30% at 50% 50%, rgba(0, 188, 212, 0.02) 0%, transparent 70%);
+}
+
+/* Bubble container */
+.deepsea-bubbles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+/* Individual bubble */
+.deepsea-bubble {
+  position: absolute;
+  bottom: -20px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(77, 208, 225, 0.5),
+    rgba(0, 188, 212, 0.2) 50%,
+    rgba(0, 131, 143, 0.08) 100%
+  );
+  border: 1px solid rgba(0, 188, 212, 0.15);
+  animation: deepsea-rise linear infinite;
+  will-change: transform;
+}
+
+@keyframes deepsea-rise {
+  0% {
+    transform: translateY(0) translateX(0) scale(1);
+  }
+  25% {
+    transform: translateY(-25vh) translateX(8px) scale(1.05);
+  }
+  50% {
+    transform: translateY(-50vh) translateX(-6px) scale(1.02);
+  }
+  75% {
+    transform: translateY(-75vh) translateX(4px) scale(0.98);
+  }
+  90% {
+    opacity: inherit;
+  }
+  100% {
+    transform: translateY(-110vh) translateX(-2px) scale(0.9);
+    opacity: 0;
+  }
+}
+
+/* Make page backgrounds solid in deep sea mode */
+.deepsea .bg-team-dark {
+  background-color: #0a1628 !important;
+}
+
+.deepsea .bg-\[\#FEFEFE\] {
+  background-color: #0a1628 !important;
+}
+
+.deepsea .bg-white {
+  background-color: #0d1b2a !important;
+}
+
+.deepsea .bg-gray-50 {
+  background-color: #0a1628 !important;
+}
+
+/* Card backgrounds in deep sea mode */
+.deepsea .bg-team-dark-20 {
+  background-color: #0d1b2a !important;
+}
+
+/* Deep sea accent colors */
+.deepsea .text-team-blue {
+  color: #00BCD4 !important;
+}
+
+.deepsea .bg-team-blue {
+  background-color: #00BCD4 !important;
+}
+
+.deepsea .border-team-blue {
+  border-color: #00BCD4 !important;
+}
+
+.deepsea .border-team-blue-40 {
+  border-color: rgba(0, 188, 212, 0.4) !important;
+}
+
+/* Cyan glow effect for deep sea theme */
+.deepsea .border-glow:hover {
+  box-shadow: 0 0 20px rgba(0, 188, 212, 0.35);
+}
+/* Tutorial: Ensure Select dropdowns render above the tutorial overlay */
+[data-radix-popper-content-wrapper] {
+  z-index: 10000 !important;
+}
